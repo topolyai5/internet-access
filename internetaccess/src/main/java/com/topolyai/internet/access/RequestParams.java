@@ -11,7 +11,16 @@ public class RequestParams {
 	private String requestType;
 	private boolean async;
 	private boolean onNewThread;
+	private String filePath;
 	private Class<?> responseClass;
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
 
 	public Class<?> getResponseClass() {
 		return responseClass;
@@ -74,8 +83,12 @@ public class RequestParams {
 	}
 
 	public static RequestParams getDefaultRequesParams() {
+		return getDefaultRequesParams(true);
+	}
+
+	public static RequestParams getDefaultRequesParams(boolean async) {
 		RequestParams requestParams = new RequestParams();
-		requestParams.setAsync(true);
+		requestParams.setAsync(async);
 		requestParams.setOnNewThread(true);
 		requestParams.setRequestType("get");
 		return requestParams;
