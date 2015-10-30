@@ -1,24 +1,15 @@
 package com.topolyai.internet.access;
 
-public class ResponseStatus<T> {
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Builder;
+
+@Getter
+@Setter
+@Builder
+public class ResponseStatus {
 
 	private String httpStatus;
-	private T response;
-
-	public String getHttpStatus() {
-		return httpStatus;
-	}
-
-	public void setHttpStatus(String httpStatus) {
-		this.httpStatus = httpStatus;
-	}
-
-	public T getResponse() {
-		return response;
-	}
-
-	public void setResponse(T response) {
-		this.response = response;
-	}
+	private String response;
 
 }

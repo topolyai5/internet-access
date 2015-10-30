@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Created by geri on 6/29/2015.
- */
 class HttpExecuteHelper {
 
     public static  String executeRequest(HttpUriRequest request, HttpClient client) throws ExecuteException, ExtractResponseException {

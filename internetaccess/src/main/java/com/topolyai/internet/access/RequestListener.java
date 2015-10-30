@@ -1,8 +1,8 @@
 package com.topolyai.internet.access;
 
-public interface RequestListener<T> {
+public interface RequestListener {
 
 	void preExecute();
 	
-	void postExecute(T result);
+	void postExecute(ResponseStatus result);
 }
