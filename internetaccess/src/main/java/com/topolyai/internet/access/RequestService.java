@@ -18,6 +18,8 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
     private RequestListener requestListener = null;
     private ProgressHandler progressHandler = null;
 
+    private RequestServiceExecutorContext executorContext = RequestServiceExecutorContext.get();
+
     public RequestService() {
     }
 
@@ -44,7 +46,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         }
     }
 
-    public ResponseStatus get(RequestParams requestParams) throws ExecuteException, ExtractResponseException, CanceledException {
+    public ResponseStatus get(RequestParams requestParams) {
         ResponseStatus response = null;
         if (requestParams.isOnNewThread()) {
             AsyncTask<RequestParams, Void, ResponseStatus> execute = execute(requestParams);
@@ -55,6 +57,14 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
             response = sendRequest(requestParams);
         }
         return response;
+    }
+
+    public void async(RequestParams requestParams) {
+        if (requestParams.isOnNewThread()) {
+            execute(requestParams);
+        } else {
+            sendRequest(requestParams);
+        }
     }
 
     private ResponseStatus executeInSync(AsyncTask<RequestParams, Void, ResponseStatus> execute) throws ExecuteException {
@@ -69,24 +79,31 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
     @SuppressWarnings("unchecked")
     protected ResponseStatus sendRequest(RequestParams requestParams) {
         String response;
-        switch (requestParams.getRequestMethod()) {
-            case GET:
-                response = urlService.get(requestParams.getUrl());
-                break;
-            case POST:
-                response = urlService.post(requestParams.getUrl(), requestParams.getNameValuePairs());
-                break;
-            case BINARY:
-                response = urlService.binary(this, requestParams.getUrl(), requestParams.getFilePath(), progressHandler);
-                break;
-            case OPTION:
-                throw new UnsupportedOperationException();
-            case DELETE:
-                throw new UnsupportedOperationException();
-            case PUT:
-                throw new UnsupportedOperationException();
-            default:
-                throw new IllegalArgumentException(String.format("Invalid request type: %s", requestParams.getRequestMethod()));
+        try {
+            switch (requestParams.getRequestMethod()) {
+                case GET:
+                    response = urlService.get(requestParams.getUrl());
+                    break;
+                case POST:
+                    response = urlService.post(requestParams.getUrl(), requestParams.getNameValuePairs());
+                    break;
+                case BINARY:
+                    response = urlService.binary(this, requestParams.getUrl(), requestParams.getFilePath(), progressHandler);
+                    break;
+                case UPLOAD:
+                    response = urlService.uploadFile(requestParams);
+                case OPTION:
+                    throw new UnsupportedOperationException();
+                case DELETE:
+                    throw new UnsupportedOperationException();
+                case PUT:
+                    throw new UnsupportedOperationException();
+                default:
+                    throw new IllegalArgumentException(String.format("Invalid request type: %s", requestParams.getRequestMethod()));
+            }
+        } catch (ExecuteException e) {
+            executorContext.add(new RequestService(requestListener), requestParams);
+            return ResponseStatus.builder().httpStatus("503").response("{'code':'NO_INTERNET_CONNECTION'}").build();
         }
         Log.d(LOGTAG, "requested url: " + requestParams.getUrl() + ",\r\n response:" + response.replaceAll("private", "privates"));
         try {

@@ -11,7 +11,7 @@ import lombok.experimental.Builder;
 @Getter
 @Setter
 @Builder
-public class RequestParams<T> {
+public class RequestParams {
 
 	private List<NameValuePair> nameValuePairs;
 	private String url;
@@ -27,7 +27,6 @@ public class RequestParams<T> {
 	 */
 	private boolean onNewThread;
 	private String filePath;
-    private Class<T> type;
 
 	public static RequestParamsBuilder defaultRequesParams() {
 		return RequestParams.builder().async(true).onNewThread(true).requestMethod(RequestMethod.GET);
