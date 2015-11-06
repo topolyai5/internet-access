@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         minSdkVersion 14
@@ -39,8 +39,8 @@ task makeJar(type: Copy) {
 
 dependencies {
     compile 'com.google.code.gson:gson:2.2.1'
-//    compile 'org.apache.httpcomponents:httpclient:4.3.3'
+    compile 'cz.msebera.android:httpclient:4.4.1.1'
     compile 'com.topolyai:vlogger:0.1.0'
-    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:support-v4:23.0.1'
     provided "org.projectlombok:lombok:1.12.6"
 }

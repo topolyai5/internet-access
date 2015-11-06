@@ -2,8 +2,7 @@ package com.topolyai.internet.access;
 
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-
+import cz.msebera.android.httpclient.NameValuePair;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Builder;
