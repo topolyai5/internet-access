@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.topolyai.vlogger.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatus> {
 
-    private static final String LOGTAG = RequestService.class.getSimpleName();
+    private static final Logger LOGGER = Logger.get(RequestService.class);
     protected UrlService urlService = new UrlService();
-    private Gson gson = new Gson();
     private RequestListener requestListener = null;
     private ProgressHandler progressHandler = null;
 
@@ -72,7 +72,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
             ResponseStatus response = execute.get();
             return response;
         } catch (InterruptedException | ExecutionException e) {
-            throw new ExecuteException(e.getMessage());
+            throw new ExecuteException(e);
         }
     }
 
@@ -105,7 +105,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
             executorContext.add(new RequestService(requestListener), requestParams);
             return ResponseStatus.builder().httpStatus("503").response("{'code':'NO_INTERNET_CONNECTION'}").build();
         }
-        Log.d(LOGTAG, "requested url: " + requestParams.getUrl() + ",\r\n response:" + response.replaceAll("private", "privates"));
+        LOGGER.d("requested url: %s,\r\nresponse: %s", requestParams.getUrl(), response.replaceAll("private", "privates"));
         try {
             JSONObject jsonObject = new JSONObject(response);
             return ResponseStatus.builder().response(jsonObject.getString("response")).httpStatus(jsonObject.getString("httpStatus")).build();
