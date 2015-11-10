@@ -9,7 +9,7 @@ import lombok.experimental.Builder;
 @Builder
 public class ResponseStatus {
 
-	private String httpStatus;
+	private int httpStatus;
 	private String response;
 
 }

@@ -1,5 +1,7 @@
 package com.topolyai.internet.access;
 
+import android.os.AsyncTask;
+
 import java.util.List;
 
 import cz.msebera.android.httpclient.NameValuePair;
@@ -28,6 +30,7 @@ public class RequestParams {
 	private boolean onNewThread;
 	private String filePath;
 	private ContentType contentType;
+    private AsyncTask asyncTask;
 
 	public static RequestParamsBuilder defaultRequesParams() {
 		return RequestParams.builder().async(true).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);

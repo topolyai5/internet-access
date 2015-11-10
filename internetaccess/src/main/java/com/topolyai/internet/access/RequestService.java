@@ -2,17 +2,14 @@ package com.topolyai.internet.access;
 
 import android.os.AsyncTask;
 
+import com.topolyai.internet.access.methods.HttpMethodFactory;
 import com.topolyai.vlogger.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
 public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatus> {
 
     private static final Logger LOGGER = Logger.get(RequestService.class);
-    protected UrlService urlService = new UrlService();
     private RequestListener requestListener = null;
     private ProgressHandler progressHandler = null;
 
@@ -75,43 +72,12 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
     }
 
     protected ResponseStatus sendRequest(RequestParams requestParams) {
-        String response;
         try {
-            switch (requestParams.getRequestMethod()) {
-                case GET:
-                    response = urlService.get(requestParams.getUrl(), requestParams.getContentType());
-                    break;
-                case POST:
-                    response = urlService.post(requestParams.getUrl(), requestParams.getNameValuePairs(), requestParams.getContentType());
-                    break;
-                case BINARY:
-                    response = urlService.binary(this, requestParams.getUrl(), requestParams.getFilePath(), progressHandler);
-                    break;
-                case UPLOAD:
-                    response = urlService.uploadFile(requestParams);
-                    break;
-                case OPTION:
-                    response = urlService.options(requestParams.getUrl(), requestParams.getContentType());
-                    break;
-                case DELETE:
-                    response = urlService.delete(requestParams.getUrl(), requestParams.getContentType());
-                    break;
-                case PUT:
-                    response = urlService.put(requestParams.getUrl(), requestParams.getContentType());
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("Invalid request type: %s", requestParams.getRequestMethod()));
-            }
+            return HttpMethodFactory.get(requestParams.getRequestMethod()).execute(requestParams);
         } catch (ExecuteException e) {
+            LOGGER.e("Error when execute HTTP Request: %s", e.getMessage(), e);
             executorContext.add(new RequestService(requestListener), requestParams);
-            return ResponseStatus.builder().httpStatus("503").response("{'code':'NO_INTERNET_CONNECTION'}").build();
-        }
-        LOGGER.d("requested url: %s,\r\nresponse: %s", requestParams.getUrl(), response.replaceAll("private", "privates"));
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            return ResponseStatus.builder().response(jsonObject.getString("response")).httpStatus(jsonObject.getString("httpStatus")).build();
-        } catch (JSONException e) {
-            throw new JSONParseException(e);
+            return ResponseStatus.builder().httpStatus(503).response("{'code':'NO_INTERNET_CONNECTION'}").build();
         }
     }
 

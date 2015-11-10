@@ -25,7 +25,7 @@ task makeJar(type: Copy) {
 
     def artifact = "internet-access"
     def group = "com.topolyai"
-    def version = "0.1.1"
+    def version = "0.2.0"
     def fileName = artifact + '-' + version + '.jar'
 
     from('build/intermediates/bundles/release/')
@@ -38,7 +38,6 @@ task makeJar(type: Copy) {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.2.1'
     compile 'cz.msebera.android:httpclient:4.4.1.1'
     compile 'com.topolyai:vlogger:0.1.0'
     compile 'com.android.support:support-v4:23.0.1'

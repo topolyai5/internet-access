@@ -3,7 +3,7 @@ package com.topolyai.internet.access;
 public enum RequestMethod {
     GET,
     POST,
-    BINARY,
+    DOWNLOAD,
     UPLOAD,
     OPTION,
     DELETE,

@@ -1,6 +1,13 @@
-package com.topolyai.internet.access;
+package com.topolyai.internet.access.methods;
 
 import android.os.AsyncTask;
+
+import com.topolyai.internet.access.CanceledException;
+import com.topolyai.internet.access.ExecuteException;
+import com.topolyai.internet.access.ExtractResponseException;
+import com.topolyai.internet.access.ProgressHandler;
+import com.topolyai.internet.access.ResponseStatus;
+import com.topolyai.vlogger.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +18,15 @@ import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.HttpVersion;
 import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.config.RequestConfig;
 import cz.msebera.android.httpclient.client.methods.HttpUriRequest;
 import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
 class HttpExecuteHelper {
 
-    public static  String executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client) throws ExecuteException, ExtractResponseException {
+    private static final Logger LOGGER = Logger.get(HttpExecuteHelper.class);
+
+    public static ResponseStatus executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client) throws ExecuteException, ExtractResponseException {
         request.addHeader("Content-Type", contentType.toString());
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
         client.getParams().setParameter("http.protocol.content-charset", contentType.getCharset());
@@ -29,17 +37,20 @@ class HttpExecuteHelper {
         }
     }
 
-    private static String extractResponseEntity(HttpResponse response, Charset charset) throws ExtractResponseException {
+    private static ResponseStatus extractResponseEntity(HttpResponse response, Charset charset) throws ExtractResponseException {
         HttpEntity resEntity = response.getEntity();
+        int statusCode = response.getStatusLine().getStatusCode();
+        String responseString = "";
         if (resEntity != null) {
             try {
-                return EntityUtils.toString(resEntity, charset);
+                responseString = EntityUtils.toString(resEntity, charset);
             } catch (IOException e) {
+                LOGGER.e(e.getMessage(), e);
                 throw new ExtractResponseException(e.getMessage(), e);
             }
         }
 
-        return "";
+        return ResponseStatus.builder().response(responseString).httpStatus(statusCode).build();
     }
 
     public static void extractDownloadedFile(AsyncTask task, InputStream input, OutputStream output, int fileLength , ProgressHandler progressHandler) throws IOException, CanceledException {
