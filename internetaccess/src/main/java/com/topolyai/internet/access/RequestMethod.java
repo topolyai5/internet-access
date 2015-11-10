@@ -5,7 +5,6 @@ public enum RequestMethod {
     POST,
     BINARY,
     UPLOAD,
-    //not supported yet
     OPTION,
     DELETE,
     PUT

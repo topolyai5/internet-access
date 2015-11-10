@@ -5,32 +5,35 @@ import android.os.AsyncTask;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.HttpVersion;
 import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.config.RequestConfig;
 import cz.msebera.android.httpclient.client.methods.HttpUriRequest;
+import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
 class HttpExecuteHelper {
 
-    public static  String executeRequest(HttpUriRequest request, HttpClient client) throws ExecuteException, ExtractResponseException {
-        request.addHeader("Content-Type", "text/html; charset=UTF-8");
+    public static  String executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client) throws ExecuteException, ExtractResponseException {
+        request.addHeader("Content-Type", contentType.toString());
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-        client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
+        client.getParams().setParameter("http.protocol.content-charset", contentType.getCharset());
         try {
-            return extractResponseEntity(client.execute(request));
+            return extractResponseEntity(client.execute(request), contentType.getCharset());
         } catch (IOException e) {
             throw new ExecuteException(e.getMessage(), e);
         }
     }
 
-    private static String extractResponseEntity(HttpResponse response) throws ExtractResponseException {
+    private static String extractResponseEntity(HttpResponse response, Charset charset) throws ExtractResponseException {
         HttpEntity resEntity = response.getEntity();
         if (resEntity != null) {
             try {
-                return EntityUtils.toString(resEntity, "UTF-8");
+                return EntityUtils.toString(resEntity, charset);
             } catch (IOException e) {
                 throw new ExtractResponseException(e.getMessage(), e);
             }

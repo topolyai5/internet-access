@@ -6,8 +6,6 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
-import lombok.AllArgsConstructor;
-
 public class RequestServiceExecutorContext {
 
     private Queue<ExecutionProperties> queue = new ArrayDeque<>();

@@ -3,6 +3,7 @@ package com.topolyai.internet.access;
 import java.util.List;
 
 import cz.msebera.android.httpclient.NameValuePair;
+import cz.msebera.android.httpclient.entity.ContentType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Builder;
@@ -26,13 +27,14 @@ public class RequestParams {
 	 */
 	private boolean onNewThread;
 	private String filePath;
+	private ContentType contentType;
 
 	public static RequestParamsBuilder defaultRequesParams() {
-		return RequestParams.builder().async(true).onNewThread(true).requestMethod(RequestMethod.GET);
+		return RequestParams.builder().async(true).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);
 	}
 
     public static RequestParamsBuilder syncRequesParams() {
-        return RequestParams.builder().async(false).onNewThread(true).requestMethod(RequestMethod.GET);
+        return RequestParams.builder().async(false).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);
     }
 
 }

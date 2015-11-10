@@ -1,9 +1,7 @@
 package com.topolyai.internet.access;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.google.gson.Gson;
 import com.topolyai.vlogger.Logger;
 
 import org.json.JSONException;
@@ -67,7 +65,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         }
     }
 
-    private ResponseStatus executeInSync(AsyncTask<RequestParams, Void, ResponseStatus> execute) throws ExecuteException {
+    private ResponseStatus executeInSync(AsyncTask<RequestParams, Void, ResponseStatus> execute) {
         try {
             ResponseStatus response = execute.get();
             return response;
@@ -76,28 +74,31 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected ResponseStatus sendRequest(RequestParams requestParams) {
         String response;
         try {
             switch (requestParams.getRequestMethod()) {
                 case GET:
-                    response = urlService.get(requestParams.getUrl());
+                    response = urlService.get(requestParams.getUrl(), requestParams.getContentType());
                     break;
                 case POST:
-                    response = urlService.post(requestParams.getUrl(), requestParams.getNameValuePairs());
+                    response = urlService.post(requestParams.getUrl(), requestParams.getNameValuePairs(), requestParams.getContentType());
                     break;
                 case BINARY:
                     response = urlService.binary(this, requestParams.getUrl(), requestParams.getFilePath(), progressHandler);
                     break;
                 case UPLOAD:
                     response = urlService.uploadFile(requestParams);
+                    break;
                 case OPTION:
-                    throw new UnsupportedOperationException();
+                    response = urlService.options(requestParams.getUrl(), requestParams.getContentType());
+                    break;
                 case DELETE:
-                    throw new UnsupportedOperationException();
+                    response = urlService.delete(requestParams.getUrl(), requestParams.getContentType());
+                    break;
                 case PUT:
-                    throw new UnsupportedOperationException();
+                    response = urlService.put(requestParams.getUrl(), requestParams.getContentType());
+                    break;
                 default:
                     throw new IllegalArgumentException(String.format("Invalid request type: %s", requestParams.getRequestMethod()));
             }
