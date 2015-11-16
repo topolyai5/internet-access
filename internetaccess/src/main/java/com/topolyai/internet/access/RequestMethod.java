@@ -5,7 +5,7 @@ public enum RequestMethod {
     POST,
     DOWNLOAD,
     UPLOAD,
-    OPTION,
+    OPTIONS,
     DELETE,
     PUT
 }

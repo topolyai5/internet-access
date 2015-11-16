@@ -1,5 +1,7 @@
 package com.topolyai.internet.access.methods;
 
+import android.text.TextUtils;
+
 import com.topolyai.internet.access.ExecuteException;
 import com.topolyai.internet.access.RequestParams;
 import com.topolyai.internet.access.ResponseStatus;
@@ -8,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.NameValuePair;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.entity.UrlEncodedFormEntity;
@@ -31,19 +34,21 @@ public abstract class AbstractEntityEnclosingHttpMethod extends HttpMethod {
         ContentType contentType = requestParams.getContentType();
         try {
             if (contentType.equals(ContentType.APPLICATION_JSON)) {
-                if (nameValuePairs.size() != 1) {
-                    throw new ExecuteException("Invalid NameValuePairs size.");
+//                String value = nameValuePair.getValue();
+                if (!TextUtils.isEmpty(requestParams.getJson())) {
+                    httpPost.setEntity(new ByteArrayEntity(requestParams.getJson().getBytes(contentType.getCharset())));
                 }
-                NameValuePair nameValuePair = nameValuePairs.get(0);
-                String value = nameValuePair.getValue();
-                httpPost.setEntity(new ByteArrayEntity(value.getBytes(contentType.getCharset())));
             } else {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             }
         } catch (UnsupportedEncodingException e) {
             throw new ExecuteException(e.getMessage(), e);
         }
-        return HttpExecuteHelper.executeRequest(httpPost, contentType, client);
+        List<Header> headers = requestParams.getHeaders();
+        if (headers == null) {
+            headers = new ArrayList<>();
+        }
+        return HttpExecuteHelper.executeRequest(httpPost, contentType, client, headers);
     }
 
     public abstract HttpEntityEnclosingRequestBase getHttpRequest(String url);

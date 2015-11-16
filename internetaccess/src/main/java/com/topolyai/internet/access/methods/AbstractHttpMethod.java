@@ -3,6 +3,10 @@ package com.topolyai.internet.access.methods;
 import com.topolyai.internet.access.RequestParams;
 import com.topolyai.internet.access.ResponseStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpRequestBase;
 
@@ -12,7 +16,11 @@ public abstract class AbstractHttpMethod extends HttpMethod {
         HttpClient client = getHttpClient(httpClient);
         String url = validateUrl(requestParams.getUrl());
         HttpRequestBase method = getHttpRequest(url);
-        return HttpExecuteHelper.executeRequest(method, requestParams.getContentType(), client);
+        List<Header> headers = requestParams.getHeaders();
+        if (headers == null) {
+            headers = new ArrayList<>();
+        }
+        return HttpExecuteHelper.executeRequest(method, requestParams.getContentType(), client, headers);
     }
 
     public abstract HttpRequestBase getHttpRequest(String url);

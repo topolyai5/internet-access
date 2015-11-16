@@ -13,7 +13,7 @@ public class HttpMethodFactory {
                 return new HttpMethodDownload();
             case UPLOAD:
                 return new HttpMethodUpload();
-            case OPTION:
+            case OPTIONS:
                 return new HttpMethodOptions();
             case DELETE:
                 return new HttpMethodDelete();

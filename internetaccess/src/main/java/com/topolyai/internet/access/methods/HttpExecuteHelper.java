@@ -3,6 +3,7 @@ package com.topolyai.internet.access.methods;
 import android.os.AsyncTask;
 
 import com.topolyai.internet.access.CanceledException;
+import com.topolyai.internet.access.ConnectionErrorException;
 import com.topolyai.internet.access.ExecuteException;
 import com.topolyai.internet.access.ExtractResponseException;
 import com.topolyai.internet.access.ProgressHandler;
@@ -13,7 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.HttpVersion;
@@ -26,14 +30,17 @@ class HttpExecuteHelper {
 
     private static final Logger LOGGER = Logger.get(HttpExecuteHelper.class);
 
-    public static ResponseStatus executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client) throws ExecuteException, ExtractResponseException {
+    public static ResponseStatus executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client, List<Header> headers) throws ExecuteException, ExtractResponseException {
         request.addHeader("Content-Type", contentType.toString());
+        for (Header header : headers) {
+            request.addHeader(header);
+        }
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
         client.getParams().setParameter("http.protocol.content-charset", contentType.getCharset());
         try {
             return extractResponseEntity(client.execute(request), contentType.getCharset());
         } catch (IOException e) {
-            throw new ExecuteException(e.getMessage(), e);
+            throw new ConnectionErrorException(e.getMessage(), e);
         }
     }
 
@@ -49,8 +56,8 @@ class HttpExecuteHelper {
                 throw new ExtractResponseException(e.getMessage(), e);
             }
         }
-
-        return ResponseStatus.builder().response(responseString).httpStatus(statusCode).build();
+        Header[] allHeaders = response.getAllHeaders();
+        return ResponseStatus.builder().response(responseString).httpStatus(statusCode).headers(Arrays.asList(allHeaders)).build();
     }
 
     public static void extractDownloadedFile(AsyncTask task, InputStream input, OutputStream output, int fileLength , ProgressHandler progressHandler) throws IOException, CanceledException {

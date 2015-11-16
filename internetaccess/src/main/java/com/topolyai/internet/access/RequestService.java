@@ -22,6 +22,10 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         this.requestListener = requestListener;
     }
 
+    public static RequestService with(RequestListener listener) {
+        return new RequestService(listener);
+    }
+
     public RequestService(RequestListener requestListener, ProgressHandler progressHandler) {
         this.requestListener = requestListener;
         this.progressHandler = progressHandler;
@@ -74,10 +78,13 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
     protected ResponseStatus sendRequest(RequestParams requestParams) {
         try {
             return HttpMethodFactory.get(requestParams.getRequestMethod()).execute(requestParams);
-        } catch (ExecuteException e) {
-            LOGGER.e("Error when execute HTTP Request: %s", e.getMessage(), e);
+        } catch (ConnectionErrorException e) {
+            LOGGER.e("Error when execute HTTP Request: %s", e, e.getMessage());
             executorContext.add(new RequestService(requestListener), requestParams);
-            return ResponseStatus.builder().httpStatus(503).response("{'code':'NO_INTERNET_CONNECTION'}").build();
+            return ResponseStatus.builder().httpStatus(503).response("NO_INTERNET_CONNECTION").build();
+        } catch (ExecuteException e) {
+            LOGGER.e("Error when execute HTTP Request: %s", e, e.getMessage());
+            return ResponseStatus.builder().httpStatus(400).response("{FAILED_TO_EXECUTE").build();
         }
     }
 

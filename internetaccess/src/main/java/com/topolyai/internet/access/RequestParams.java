@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.NameValuePair;
 import cz.msebera.android.httpclient.entity.ContentType;
 import lombok.Getter;
@@ -31,6 +32,8 @@ public class RequestParams {
 	private String filePath;
 	private ContentType contentType;
     private AsyncTask asyncTask;
+    private List<Header> headers;
+	private String json;
 
 	public static RequestParamsBuilder defaultRequesParams() {
 		return RequestParams.builder().async(true).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);

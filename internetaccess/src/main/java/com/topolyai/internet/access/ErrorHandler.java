@@ -1,5 +1,7 @@
 package com.topolyai.internet.access;
 
 public interface ErrorHandler {
-    RuntimeException handle(ResponseStatus responseStatus);
+    RuntimeException toException(ResponseStatus responseStatus);
+
+    <T> T handle(ResponseStatus status, Class clzz);
 }
