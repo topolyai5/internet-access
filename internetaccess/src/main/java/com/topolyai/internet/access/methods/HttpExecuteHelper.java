@@ -60,7 +60,7 @@ class HttpExecuteHelper {
         return ResponseStatus.builder().response(responseString).httpStatus(statusCode).headers(Arrays.asList(allHeaders)).build();
     }
 
-    public static void extractDownloadedFile(AsyncTask task, InputStream input, OutputStream output, int fileLength , ProgressHandler progressHandler) throws IOException, CanceledException {
+    public static void extractDownloadedFile(AsyncTask task, InputStream input, OutputStream output, int fileLength, ProgressHandler progressHandler) throws IOException, CanceledException {
         byte data[] = new byte[4096];
         long total = 0;
         int count;

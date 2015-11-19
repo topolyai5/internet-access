@@ -81,7 +81,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         } catch (ConnectionErrorException e) {
             LOGGER.e("Error when execute HTTP Request: %s", e, e.getMessage());
             executorContext.add(new RequestService(requestListener), requestParams);
-            return ResponseStatus.builder().httpStatus(503).response("NO_INTERNET_CONNECTION").build();
+            return ResponseStatus.builder().httpStatus(503).response("SERVICE_UNAVAILABLE").build();
         } catch (ExecuteException e) {
             LOGGER.e("Error when execute HTTP Request: %s", e, e.getMessage());
             return ResponseStatus.builder().httpStatus(400).response("{FAILED_TO_EXECUTE").build();
