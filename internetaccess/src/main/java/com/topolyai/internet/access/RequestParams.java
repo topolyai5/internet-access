@@ -2,6 +2,7 @@ package com.topolyai.internet.access;
 
 import android.os.AsyncTask;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -35,12 +36,20 @@ public class RequestParams {
     private List<Header> headers;
 	private String json;
 
-	public static RequestParamsBuilder defaultRequesParams() {
+	public static RequestParamsBuilder defaultRequestParams() {
 		return RequestParams.builder().async(true).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);
 	}
 
-    public static RequestParamsBuilder syncRequesParams() {
+    public static RequestParamsBuilder syncRequestParams() {
         return RequestParams.builder().async(false).onNewThread(true).contentType(ContentType.APPLICATION_JSON).requestMethod(RequestMethod.GET);
     }
+
+	public static RequestParamsBuilder requestParamsDefaultContentType() {
+		return RequestParams.builder().async(true).onNewThread(true).contentType(ContentType.create("text/html", Charset.forName("UTF-8"))).requestMethod(RequestMethod.GET);
+	}
+
+	public static RequestParamsBuilder syncRequestParamsDefaultContentTyp() {
+		return RequestParams.builder().async(false).onNewThread(true).requestMethod(RequestMethod.GET);
+	}
 
 }

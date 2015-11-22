@@ -33,7 +33,7 @@ public abstract class AbstractEntityEnclosingHttpMethod extends HttpMethod {
         HttpEntityEnclosingRequestBase httpPost = getHttpRequest(targetUrl);
         ContentType contentType = requestParams.getContentType();
         try {
-            if (contentType.equals(ContentType.APPLICATION_JSON)) {
+            if (contentType != null && contentType.equals(ContentType.APPLICATION_JSON)) {
 //                String value = nameValuePair.getValue();
                 if (!TextUtils.isEmpty(requestParams.getJson())) {
                     httpPost.setEntity(new ByteArrayEntity(requestParams.getJson().getBytes(contentType.getCharset())));
