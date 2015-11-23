@@ -1,6 +1,8 @@
 package com.topolyai.internet.access;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.topolyai.vlogger.Logger;
 
 import org.json.JSONArray;
@@ -19,6 +21,11 @@ public class HandleResponse {
 
     public HandleResponse(ErrorHandler errorHandler) {
         HandleResponse.errorHandler = errorHandler;
+    }
+
+    public HandleResponse(ErrorHandler errorHandler, Gson gson) {
+        this(errorHandler);
+        this.gson = gson;
     }
 
     public static void asNoContent(ResponseStatus status) {
