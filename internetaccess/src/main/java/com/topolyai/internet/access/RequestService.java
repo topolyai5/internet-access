@@ -77,6 +77,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
 
     protected ResponseStatus sendRequest(RequestParams requestParams) {
         try {
+            requestParams.setAsyncTask(this);
             return HttpMethodFactory.get(requestParams.getRequestMethod()).execute(requestParams);
         } catch (ConnectionErrorException e) {
             LOGGER.e("Error when execute HTTP Request: %s", e, e.getMessage());
