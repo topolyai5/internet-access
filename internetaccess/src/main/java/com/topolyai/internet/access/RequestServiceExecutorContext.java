@@ -42,7 +42,7 @@ public class RequestServiceExecutorContext {
     public void process() {
         while (!queue.isEmpty()) {
             ExecutionProperties poll = queue.poll();
-            LOGGER.i("Resend data: %s", poll.requestParams.getUrl());
+            LOGGER.i("Resend data: {}", poll.requestParams.getUrl());
             poll.requestParams.setAsync(true);
             poll.requestParams.setOnNewThread(true);
             poll.requestService.get(poll.requestParams);

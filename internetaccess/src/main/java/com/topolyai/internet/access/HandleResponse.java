@@ -19,18 +19,26 @@ public class HandleResponse {
 
     private static ErrorHandler errorHandler;
 
-    public HandleResponse(ErrorHandler errorHandler) {
+    private HandleResponse(ErrorHandler errorHandler) {
         HandleResponse.errorHandler = errorHandler;
     }
 
-    public HandleResponse(ErrorHandler errorHandler, Gson gson) {
+    private HandleResponse(ErrorHandler errorHandler, Gson gson) {
         this(errorHandler);
         this.gson = gson;
     }
 
+    public static void create(ErrorHandler errorHandler) {
+        new HandleResponse(errorHandler);
+    }
+
+    public static void create(ErrorHandler errorHandler, Gson gson) {
+        new HandleResponse(errorHandler, gson);
+    }
+
     public static void asNoContent(ResponseStatus status) {
         if (status.getHttpStatus() != 200) {
-            LOGGER.w("Response from server: %s with http code: %s", status.getResponse(), status.getHttpStatus());
+            LOGGER.w("Response from server: {} with http code: {}", status.getResponse(), status.getHttpStatus());
             RuntimeException exception = errorHandler.toException(status);
             if (exception != null) {
                 throw exception;
@@ -40,7 +48,7 @@ public class HandleResponse {
 
     public static <T> T asSingle(ResponseStatus status, Class<T> clzz) {
         if (status.getHttpStatus() != 200) {
-            LOGGER.w("Response from server: %s with http code: %s", status.getResponse(), status.getHttpStatus());
+            LOGGER.w("Response from server: {} with http code: {}", status.getResponse(), status.getHttpStatus());
             RuntimeException exception = errorHandler.toException(status);
             if (exception != null) {
                 throw exception;
@@ -54,7 +62,7 @@ public class HandleResponse {
 
     public static <T> List<T> asList(ResponseStatus status, Class<T> clzz) {
         if (status.getHttpStatus() != 200) {
-            LOGGER.w("Response from server: %s with http code: %s", status.getResponse(), status.getHttpStatus());
+            LOGGER.w("Response from server: {} with http code: {}", status.getResponse(), status.getHttpStatus());
             RuntimeException exception = errorHandler.toException(status);
             if (exception != null) {
                 throw exception;

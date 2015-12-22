@@ -38,7 +38,7 @@ public class HttpMethodDownload extends HttpMethod {
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
             httpStatus = connection.getResponseCode();
-            response = String.format("Server returned HTTP: response msg: %s", connection.getResponseMessage());
+            response = String.format("Server returned HTTP: %s response msg: %s", connection.getResponseCode(), connection.getResponseMessage());
             input = connection.getInputStream();
             output = new FileOutputStream(filePath);
             HttpExecuteHelper.extractDownloadedFile(task, input, output, connection.getContentLength(), progressHandler);
