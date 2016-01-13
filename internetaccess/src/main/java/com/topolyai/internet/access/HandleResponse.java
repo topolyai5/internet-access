@@ -77,7 +77,7 @@ public class HandleResponse {
                 ret.add(gson.fromJson(array.get(i).toString(), clzz));
             }
         } catch (JSONException e) {
-            throw new RuntimeException(String.format("Failed to parse json: %s. Error message: %s", e, e.getMessage()));
+            throw new RuntimeException(String.format("Failed to parse json: {}. Error message: {}", e, e.getMessage()));
         }
         return ret;
     }
