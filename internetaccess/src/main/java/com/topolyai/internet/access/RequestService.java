@@ -57,7 +57,7 @@ public class RequestService<T> extends AsyncTask<RequestParams, Void, ResponseSt
                     HandleResponse.asNoContent(result);
                 }
             }
-            postRequestListener.execute(res);
+            postRequestListener.execute(res, result.getHttpStatus(), result.getResponse());
         }
 
     }
