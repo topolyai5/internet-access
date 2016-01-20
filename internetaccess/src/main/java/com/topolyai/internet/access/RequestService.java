@@ -7,42 +7,59 @@ import com.topolyai.vlogger.Logger;
 
 import java.util.concurrent.ExecutionException;
 
-public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatus> {
+public class RequestService<T> extends AsyncTask<RequestParams, Void, ResponseStatus> {
 
     private static final Logger LOGGER = Logger.get(RequestService.class);
-    private RequestListener requestListener = null;
+    private PreRequestListener preRequestListener = null;
+    private PostRequestListener<T> postRequestListener = null;
     private ProgressHandler progressHandler = null;
+    private Class<T> clzz;
 
     private RequestServiceExecutorContext executorContext = RequestServiceExecutorContext.get();
 
     public RequestService() {
     }
 
-    public RequestService(RequestListener requestListener) {
-        this.requestListener = requestListener;
+    public RequestService(PreRequestListener preRequestListener, PostRequestListener<T> postRequestListener, Class clzz) {
+        this(preRequestListener, postRequestListener, clzz, null);
     }
 
-    public static RequestService with(RequestListener listener) {
-        return new RequestService(listener);
-    }
-
-    public RequestService(RequestListener requestListener, ProgressHandler progressHandler) {
-        this.requestListener = requestListener;
+    public RequestService(PreRequestListener preRequestListener, PostRequestListener<T> postRequestListener, Class clzz, ProgressHandler progressHandler) {
+        this.preRequestListener = preRequestListener;
+        this.postRequestListener = postRequestListener;
         this.progressHandler = progressHandler;
+        this.clzz = clzz;
+    }
+
+    public static RequestService with(PreRequestListener listener, PostRequestListener postRequestListener, Class clzz) {
+        return new RequestService(listener, postRequestListener, clzz);
     }
 
     @Override
     protected void onPreExecute() {
-        if (requestListener != null) {
-            requestListener.preExecute();
+        if (preRequestListener != null) {
+            preRequestListener.execute();
         }
     }
 
     @Override
     protected void onPostExecute(ResponseStatus result) {
-        if (requestListener != null) {
-            requestListener.postExecute(result);
+        if (postRequestListener != null) {
+            T res = null;
+            if (clzz.isInstance(result)) {
+                res = (T) result;
+            } else {
+                if (result.getResponse().startsWith("[")) {
+                    res = (T) HandleResponse.asList(result, clzz);
+                } else if (result.getResponse().startsWith("{")) {
+                    res = HandleResponse.asSingle(result, clzz);
+                } else {
+                    HandleResponse.asNoContent(result);
+                }
+            }
+            postRequestListener.execute(res);
         }
+
     }
 
     public ResponseStatus get(RequestParams requestParams) {
@@ -66,7 +83,7 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
         }
     }
 
-    private ResponseStatus executeInSync(AsyncTask<RequestParams, Void, ResponseStatus> execute) {
+    protected ResponseStatus executeInSync(AsyncTask<RequestParams, Void, ResponseStatus> execute) {
         try {
             ResponseStatus response = execute.get();
             return response;
@@ -81,11 +98,11 @@ public class RequestService extends AsyncTask<RequestParams, Void, ResponseStatu
             return HttpMethodFactory.get(requestParams.getRequestMethod()).execute(requestParams);
         } catch (ConnectionErrorException e) {
             LOGGER.e("Error when execute HTTP Request: {}", e, e.getMessage());
-            executorContext.add(new RequestService(requestListener), requestParams);
+            executorContext.add(new RequestService(preRequestListener, postRequestListener, clzz), requestParams);
             return ResponseStatus.builder().httpStatus(503).response("SERVICE_UNAVAILABLE").build();
         } catch (ExecuteException e) {
             LOGGER.e("Error when execute HTTP Request: {}", e, e.getMessage());
-            return ResponseStatus.builder().httpStatus(400).response("{FAILED_TO_EXECUTE").build();
+            return ResponseStatus.builder().httpStatus(400).response("FAILED_TO_EXECUTE").build();
         }
     }
 
