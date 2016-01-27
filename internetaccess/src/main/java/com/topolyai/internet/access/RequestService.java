@@ -44,6 +44,11 @@ public class RequestService<T> extends AsyncTask<RequestParams, Void, ResponseSt
 
     @Override
     protected void onPostExecute(ResponseStatus result) {
+
+        for (Interceptor interceptor : InterceptorManager.get().getInterceptors()) {
+            interceptor.post(result);
+        }
+
         if (postRequestListener != null) {
             T res = null;
             if (clzz.isInstance(result)) {
