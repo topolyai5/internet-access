@@ -32,6 +32,9 @@ class HttpExecuteHelper {
 
     public static ResponseStatus executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client, List<Header> headers) throws ExecuteException, ExtractResponseException {
         request.addHeader("Content-Type", contentType.toString());
+        if (contentType.equals(ContentType.APPLICATION_JSON)) {
+            request.addHeader("Accept", "application/json; q=1, text/plain; q=0.9, text/html; q=0.8");
+        }
         for (Header header : headers) {
             request.addHeader(header);
         }
