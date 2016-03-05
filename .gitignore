@@ -3,3 +3,6 @@
 **/build/*
 *.iml
 **/local.properties
+gradle/*
+*.bat
+/gradlew
