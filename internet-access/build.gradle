@@ -24,12 +24,12 @@ android {
 }
 
 dependencies {
-    compile 'cz.msebera.android:httpclient:4.4.1.1'
-    compile 'com.koushikdutta.ion:ion:2.1.6'
-    compile 'com.android.support:support-v4:23.0.1'
+    provided 'cz.msebera.android:httpclient:4.4.1.1'
+    provided 'com.koushikdutta.ion:ion:2.1.6'
+    provided 'com.android.support:support-v4:23.0.1'
     provided "org.projectlombok:lombok:1.12.6"
 
-    compile 'com.topolyai:vlogger:1.0.0@aar'
+    provided 'com.topolyai:vlogger:1.0.0@aar'
 }
 
 
