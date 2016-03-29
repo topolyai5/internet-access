@@ -1,5 +1,6 @@
 package com.topolyai.internet.access;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
 import java.nio.charset.Charset;
@@ -31,6 +32,7 @@ public class RequestParams {
 	 */
 	private boolean onNewThread;
 	private String filePath;
+	private Bitmap bitmap;
 	private ContentType contentType;
     private AsyncTask asyncTask;
     private List<Header> headers;

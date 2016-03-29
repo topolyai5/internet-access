@@ -1,19 +1,17 @@
 package com.topolyai.internet.access.methods;
 
-import android.util.Log;
-
 import com.topolyai.internet.access.ExecuteException;
 import com.topolyai.internet.access.RequestParams;
 import com.topolyai.internet.access.ResponseStatus;
 
-import java.io.DataOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
+import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.entity.mime.HttpMultipartMode;
+import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
 
 public class HttpMethodUpload extends HttpMethod {
     @Override
@@ -22,97 +20,21 @@ public class HttpMethodUpload extends HttpMethod {
     }
 
     public ResponseStatus uploadFile(RequestParams requestParams) throws ExecuteException {
-        HttpURLConnection conn = null;
-        DataOutputStream dos = null;
-        FileInputStream fileInputStream = null;
-        try {
+        HttpClient httpClient = getHttpClient(null);
+        HttpPost postRequest = new HttpPost(requestParams.getUrl());
+        File file = new File(requestParams.getFilePath());
 
-            String fileName = requestParams.getFilePath();
-
-
-            String lineEnd = "\r\n";
-            String twoHyphens = "--";
-            String boundary = "*****";
-            int bytesRead, bytesAvailable, bufferSize;
-            byte[] buffer;
-            int maxBufferSize = 1024 * 1024;
-            File sourceFile = new File(fileName);
-
-            if (!sourceFile.isFile()) {
-                Log.e("uploadFile", "Source File not exist :" + fileName);
-                return ResponseStatus.builder().httpStatus(404).response("{'code': 'FILE_NOT_FOUND'}").build();
-            }
-
-            // open a URL connection to the Servlet
-            fileInputStream = new FileInputStream(sourceFile);
-            URL url = new URL(requestParams.getUrl());
-
-            // Open a HTTP  connection to  the URL
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true); // Allow Inputs
-            conn.setDoOutput(true); // Allow Outputs
-            conn.setUseCaches(false); // Don't use a Cached Copy
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.setRequestProperty("ENCTYPE", "multipart/form-data");
-            conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-            conn.setRequestProperty("uploaded_file", fileName);
-
-            dos = new DataOutputStream(conn.getOutputStream());
-
-            dos.writeBytes(twoHyphens + boundary + lineEnd);
-            dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + fileName + "\"" + lineEnd);
-
-            dos.writeBytes(lineEnd);
-
-            // create a buffer of  maximum size
-            bytesAvailable = fileInputStream.available();
-
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-            buffer = new byte[bufferSize];
-
-            // read file and write it into form...
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-            while (bytesRead > 0) {
-
-                dos.write(buffer, 0, bufferSize);
-                bytesAvailable = fileInputStream.available();
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-            }
-
-            // send multipart form data necesssary after file data...
-            dos.writeBytes(lineEnd);
-            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-            // Responses from the server (code and message)
-            int serverResponseCode = conn.getResponseCode();
-            String serverResponseMessage = conn.getResponseMessage();
-
-            //close the streams //
-            fileInputStream.close();
-            dos.flush();
-            dos.close();
-
-
-            return ResponseStatus.builder().httpStatus(serverResponseCode).response(serverResponseMessage).build();
-        } catch (IOException e) {
-            throw new ExecuteException(e.getMessage());
-        } finally {
-            try {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
-                    dos.flush();
-                    dos.close();
-                    conn.disconnect();
-                }
-            } catch (IOException e) {
-                throw new ExecuteException(e.getMessage());
-            }
-
+        MultipartEntityBuilder reqEntity = MultipartEntityBuilder
+                .create()
+                .setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        if (requestParams.getBitmap() != null) {
+//            requestParams.getBitmap().
+//            reqEntity.addBinaryBody(file.getName(), new ByteArrayInputStream())
+        } else {
+            reqEntity.addBinaryBody(file.getName(), file, requestParams.getContentType(), file.getName())
         }
+        postRequest.setEntity(reqEntity.build());
+        return HttpExecuteHelper.executeRequest(postRequest, null, httpClient, requestParams.getHeaders());
     }
 
 }

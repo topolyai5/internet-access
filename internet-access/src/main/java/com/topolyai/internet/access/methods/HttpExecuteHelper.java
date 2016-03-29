@@ -31,17 +31,21 @@ class HttpExecuteHelper {
     private static final Logger LOGGER = Logger.get(HttpExecuteHelper.class);
 
     public static ResponseStatus executeRequest(HttpUriRequest request, ContentType contentType, HttpClient client, List<Header> headers) throws ExecuteException, ExtractResponseException {
-        request.addHeader("Content-Type", contentType.toString());
-        if (contentType.equals(ContentType.APPLICATION_JSON)) {
-            request.addHeader("Accept", "application/json; q=1, text/plain; q=0.9, text/html; q=0.8");
+        Charset charset = Charset.forName("UTF8");
+        if (contentType != null) {
+            request.addHeader("Content-Type", contentType.toString());
+            if (contentType.equals(ContentType.APPLICATION_JSON)) {
+                request.addHeader("Accept", "application/json; q=1, text/plain; q=0.9, text/html; q=0.8");
+            }
+            charset = contentType.getCharset();
         }
         for (Header header : headers) {
             request.addHeader(header);
         }
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-        client.getParams().setParameter("http.protocol.content-charset", contentType.getCharset());
+        client.getParams().setParameter("http.protocol.content-charset", charset);
         try {
-            return extractResponseEntity(client.execute(request), contentType.getCharset());
+            return extractResponseEntity(client.execute(request), charset);
         } catch (IOException e) {
             throw new ConnectionErrorException(e.getMessage(), e);
         }
