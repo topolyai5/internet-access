@@ -17,7 +17,7 @@ allprojects {
         mavenLocal()
     }
 
-    group = 'com.topolyai'
+    group = 'io.internetaccess'
     version = '1.0.0'
 
 }
